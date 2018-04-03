@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import csv
 
 
 class JumiaProperty:
@@ -29,9 +30,16 @@ class JumiaScraper:
         self.category = category
         self.base_url = base_url
         self.soup = BeautifulSoup(requests.get(self.base_url).content, "lxml")
-        self.properties = []
         self.last_page = int(self.soup.find(
             "ul", class_="Pagination").find_all("li")[-2].a.string)
+        self.filename = category.lower().replace(" ", "_")
+        self.target_file = open(self.filename, "w")
+
+        fieldnames = ["title", "category", "description", "price", "location", "latitude", "longitude", "bedrooms", "bathrooms",
+                      "fully_furnished", "car_spaces", "land_size", "living_area", "total_floors", "indoor_features", "outdoor_features", "eco_features"]
+
+        self.writer = csv.DictWriter(self.target_file, fieldnames=fieldnames)
+        self.writer.writeheader()
 
     def scrape(self, url):
         new_prop = JumiaProperty()
@@ -89,12 +97,21 @@ class JumiaScraper:
             new_prop.longitude = float(small_soup.find(
                 "div", class_="map").get("data-lng"))
             print(new_prop.__dict__)
-            # self.properties.append(new_prop)
+            self.writer.writerow(new_prop.__dict__)
 
 
 if __name__ == "__main__":
-    jumia_rentals = JumiaScraper(
-        "https://house.jumia.co.ke/for-rent/", "For Rent")
-    for page in range(1, jumia_rentals.last_page+1):
-        print("Scraping Page {0}".format(page))
-        jumia_rentals.scrape("?page={0}&size=30".format(page))
+    # Uncomment codeblock below to get properties for rent
+
+    # jumia_rentals = JumiaScraper(
+    #     "https://house.jumia.co.ke/for-rent/", "For Rent")
+    # for page in range(1, jumia_rentals.last_page+1):
+    #     print("Scraping Page {0}".format(page))
+    #     jumia_rentals.scrape("?page={0}&size=30".format(page))
+
+    jumia_sales = JumiaScraper(
+        "https://house.jumia.co.ke/for-sale/", "For Sale")
+
+    for page in range(1, jumia_sales.last_page+1):
+        print("Scraping Page {0}\n".format(page))
+        jumia_sales.scrape("?page={0}&size=30".format(page))
