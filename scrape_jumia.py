@@ -26,7 +26,6 @@ class JumiaProperty:
 
 class JumiaScraper:
     def __init__(self, base_url, category):
-        self.properties_per_page = 5
         self.category = category
         self.base_url = base_url
         self.soup = BeautifulSoup(requests.get(self.base_url).content, "lxml")
@@ -45,7 +44,7 @@ class JumiaScraper:
         new_prop = JumiaProperty()
         page_soup = BeautifulSoup(requests.get(
             self.base_url+url).content, "lxml")
-        for prop_link in page_soup.find_all("div", class_="listing-info")[:self.properties_per_page]:
+        for prop_link in page_soup.find_all("div", class_="listing-info"):
             small_soup = BeautifulSoup(
                 requests.get("https://house.jumia.co.ke"+prop_link.h3.a.get("href")).content, "lxml")
             new_prop.category = self.category
