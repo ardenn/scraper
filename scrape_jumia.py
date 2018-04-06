@@ -10,8 +10,8 @@ class JumiaProperty:
         self.description = ""
         self.price = ""
         self.location = ""
-        self.latitude = ""
-        self.longitude = ""
+        self.latitude = 0
+        self.longitude = 0
         self.bedrooms = 0
         self.bathrooms = 0
         self.fully_furnished = False
@@ -31,7 +31,7 @@ class JumiaScraper:
         self.soup = BeautifulSoup(requests.get(self.base_url).content, "lxml")
         self.last_page = int(self.soup.find(
             "ul", class_="Pagination").find_all("li")[-2].a.string)
-        self.filename = category.lower().replace(" ", "_")
+        self.filename = "jumia_"+category.lower().replace(" ", "_")
         self.target_file = open(self.filename, "w")
 
         fieldnames = ["title", "category", "description", "price", "location", "latitude", "longitude", "bedrooms", "bathrooms",
@@ -50,8 +50,6 @@ class JumiaScraper:
             new_prop.category = self.category
             new_prop.title = small_soup.find(
                 "h1", class_="detail-property-title").string.strip()
-            # new_prop.description = small_soup.find(
-            #     "section", class_="description").p.string.strip()
             if small_soup.find("td", string="Bedrooms"):
                 new_prop.bedrooms = int(small_soup.find(
                     "td", string="Bedrooms").find_next_sibling("td").string.strip())
@@ -99,18 +97,14 @@ class JumiaScraper:
             self.writer.writerow(new_prop.__dict__)
 
 
+def deploy(categories):
+    for category in categories:
+        jumia = JumiaScraper(category[0], category[1])
+        for page in range(1, jumia.last_page+1):
+            print("Scraping Page {0}\n".format(page))
+            jumia.scrape("?page={0}&size=30".format(page))
+
+
 if __name__ == "__main__":
-    # Uncomment codeblock below to get properties for rent
-
-    # jumia_rentals = JumiaScraper(
-    #     "https://house.jumia.co.ke/for-rent/", "For Rent")
-    # for page in range(1, jumia_rentals.last_page+1):
-    #     print("Scraping Page {0}".format(page))
-    #     jumia_rentals.scrape("?page={0}&size=30".format(page))
-
-    jumia_sales = JumiaScraper(
-        "https://house.jumia.co.ke/for-sale/", "For Sale")
-
-    for page in range(1, jumia_sales.last_page+1):
-        print("Scraping Page {0}\n".format(page))
-        jumia_sales.scrape("?page={0}&size=30".format(page))
+    deploy([["https://house.jumia.co.ke/for-sale/", "For Sale"],
+            ["https://house.jumia.co.ke/for-rent/", "For Rent"]])
