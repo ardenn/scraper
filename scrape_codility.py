@@ -13,6 +13,7 @@ class Codility:
         self.lessons = [
             self.url+lesson.get("href") for lesson in self.soup.find_all('a', class_="lesson-item")
         ]
+        print("{0} Lessons found".format(len(self.lessons)))
 
     def scrape_lessons(self):
         lesson_count = int(self.start)
@@ -32,7 +33,9 @@ class Codility:
 
     def scrape_task(self, url):
         task_soup = BeautifulSoup(requests.get(url).content, 'lxml')
-        return task_soup.find('div', class_="desc-py-en").text.strip()
+        if task_soup.find('div', class_="desc-py-en") is not None:
+            return task_soup.find('div', class_="desc-py-en").text.strip()
+        return ""
 
     def write_task(self, filename, text_content):
         with open(filename, 'w') as task_file:
