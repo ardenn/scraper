@@ -113,3 +113,6 @@ venv.bak/
 
 # codility
 lesson*
+
+# CSv data files
+*.csv
