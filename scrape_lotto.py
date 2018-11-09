@@ -27,8 +27,8 @@ def scrape():
                         file.write(",".join([
                             inner_cells[0].string.strip(),
                             inner_cells[1].string.strip().replace(",", ""),
-                            inner_cells[2].string.strip(
-                            )+"\n" if inner_cells[2].string else "\n"
+                            inner_cells[2].a.string.strip(
+                            )+"\n" if inner_cells[2].a else "\n"
                         ])
                         )
 
